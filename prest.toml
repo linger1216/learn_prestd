@@ -1,0 +1,85 @@
+version = "2"
+migrations = "./migrations"
+
+
+debug = true
+# enabling debug mode will disable JWT authorization
+
+[queries]
+location = "queries"
+
+[http]
+port = 3000
+
+[cors]
+alloworigin = ["https://prestd.com", "http://foo.com"]
+allowheaders = ["Content-Type"]
+allowmethods = ["GET", "DELETE", "POST", "PUT", "PATCH", "OPTIONS"]
+
+
+[pg]
+host = "127.0.0.1"
+user = "postgres"
+pass = ""
+port = 5432
+database = "lid"
+single = true
+## or used cloud factor
+# URL = "postgresql://postgres:@localhost/lid/?sslmode=disable"
+
+[pg.ssl]
+mode = "disable"
+
+
+[cache]
+enabled = true
+time = "10"
+storagepath = "caches"
+sufixfile = ".cache.prestd.db"
+
+[[cache.endpoints]]
+endpoint = "/lid/public/user"
+time = 5
+
+[[cache.endpoints]]
+endpoint = "/lid/public/school"
+
+
+[jwt]
+default = true
+jwks = [{"kty"="RSA","e"="AQAB","use"="sig","kid"="c9b471325cfc459e8973ed2e8af72644","alg"="RS256","n"="xSwwuOr9CZ2oeHVmAFHTGJOJ0Ye5zIsTTKfVwOpq5GOxJhLHoYZ-5Wb7-JU66SEIVSlJfpqk92adPilZaUZdYqB7MxeVa9nGMSqMt99QqkoK5fb7ANdU8yOcatUHcFyRYjdhnRKHULAw0W2Donw_LcuNNO1_DWoqjFfCnPnW_abPfPZHIYOH1mq-IxF9HAaYUxQmiIv3H6s7bHO4OTumBznyLE4e57TQVrZggaVMw5gqGW9K1QGyasoZha7_iw8SKh8nAkZaMmPTkGOOEnyj4ifO-6-5jxkCkanHAl2G6WPDKCqWt9npyDwiV0zairo0zaCq2PAe-Q1qHMdtUxwJAQ"}]
+whitelist = ["/auth", "/ping"]
+
+
+[auth]
+enabled = true
+type = "body"
+schema = "public"
+encrypt = "SHA1"
+table = "prestd_users"
+username = "username"
+password = "password"
+
+[expose]
+enabled = true
+databases = true
+schemas = true
+tables = true
+
+[access]
+restrict = true  # can access only the tables listed below
+
+[[access.tables]]
+name = "user"
+permissions = ["read", "write", "delete"]
+# fields = ["id", "name"]
+
+[[access.tables]]
+name = "school"
+permissions = ["read", "write", "delete"]
+# fields = ["id", "name"]
+
+[[access.tables]]
+name = "myjson"
+permissions = ["read", "write", "delete"]
+# fields = ["id", "name"]

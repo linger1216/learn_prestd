@@ -1,0 +1,128 @@
+@baseUrl = http://localhost:3000
+@db = lid
+@schema = public
+
+### 申请Token
+POST {{baseUrl}}/auth
+content-type: application/json
+
+{
+  "username": "leegohi",
+  "password": "Gjw821216"
+}
+
+# 设置Token
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6MSwibWV0YWRhdGEiOm51bGwsIm5hbWUiOiIiLCJ1c2VybmFtZSI6ImxlZWdvaGkifSwiZXhwIjoxNzM2MDY5OTQ0LCJuYmYiOjE3MzYwNDgzNDR9.bfR5mH5-btnZ1pkMOgtEHKnFsMw-cW0wzaMasHwxyh0
+
+
+### 增
+POST {{baseUrl}}/{{db}}/{{schema}}/user
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{ "id": 13, "age": 33, "name": "黄艳", "gender": "女", "school_id": 1}
+
+### 批量增, 注意路径多了一个batch
+POST {{baseUrl}}/batch/{{db}}/{{schema}}/user
+Authorization: Bearer {{token}}
+content-type: application/json
+
+[
+  { "id": 15, "age": 33, "name": "楠茜", "gender": "女", "school_id": 1},
+  { "id": 16, "age": 23, "name": "御姐", "gender": "女", "school_id": 2}
+]
+
+
+### 删
+DELETE {{baseUrl}}/{{db}}/{{schema}}/user?id=100
+Authorization: Bearer {{token}}
+
+
+### 改
+PUT {{baseUrl}}/{{db}}/{{schema}}/user?id=1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{ "age": 999, "name": "张三(修改后)", "gender": "女", "school_id": 1}
+
+
+### 查
+
+### 获取全部数据
+GET {{baseUrl}}/{{db}}/{{schema}}/user
+Authorization: Bearer {{token}}
+
+### 分页查
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_page=2&_page_size=3
+Authorization: Bearer {{token}}
+
+### 指定列查
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_select=name,age
+Authorization: Bearer {{token}}
+
+### 条件查询
+GET {{baseUrl}}/{{db}}/{{schema}}/user?name=刘备
+Authorization: Bearer {{token}}
+
+### 查询23-34岁的人
+GET {{baseUrl}}/{{db}}/{{schema}}/user?age=$gte.23&age=$lte.34
+Authorization: Bearer {{token}}
+
+### 分组: 按性别分组, 每个性别的最大年龄是多少
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_select=gender,max:age&_groupby=gender
+Authorization: Bearer {{token}}
+
+### join查询
+# 语法:
+# /{DATABASE}/{SCHEMA}/{TABLE1}?_join={TYPE}:{TABLE2}:{TABLE1.FIELD}:{OPERATOR}:{TABLE2.FIELD}
+### 在一中就读的学生里年龄大于等于22岁的学生都有谁？
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_join=left:school:user.school_id:$eq:school.id&school.name=一中&user.age=$gte.22&_select=user.name
+Authorization: Bearer {{token}}
+
+### 计数
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_count=*&age=$gte.23&age=$lte.34
+Authorization: Bearer {{token}}
+
+
+### 渲染xml输出,没啥用
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_renderer=xml&age=$gte.23&age=$lte.34
+Authorization: Bearer {{token}}
+
+
+### distinct
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_select=gender&_distinct=true
+Authorization: Bearer {{token}}
+
+
+### 排序
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_order=age
+Authorization: Bearer {{token}}
+
+### 倒序
+GET {{baseUrl}}/{{db}}/{{schema}}/user?_order=-age
+Authorization: Bearer {{token}}
+
+### in查询
+GET {{baseUrl}}/{{db}}/{{schema}}/user?age=$in.23,24
+Authorization: Bearer {{token}}
+
+
+### Jsonb 支持
+### 新建一个表,只有id,data, data里面存放着a,b两个key,分别是存放字符串和数字
+POST {{baseUrl}}/batch/{{db}}/{{schema}}/myjson
+Authorization: Bearer {{token}}
+content-type: application/json
+
+[
+  { "id": 1, "data": "{ \"a\": \"hello\", \"b\": 1 }"},
+  { "id": 2, "data": "{ \"a\": \"world\", \"b\": 1 }"}
+]
+
+### 查询json内字段
+GET {{baseUrl}}/{{db}}/{{schema}}/myjson?data->>a:jsonb=hello
+Authorization: Bearer {{token}}
+
+
+### 自定义查询
+GET {{baseUrl}}/_QUERIES/app1/school-age?school=一中&age=32
+Authorization: Bearer {{token}}
